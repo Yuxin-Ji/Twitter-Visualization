@@ -1,136 +1,213 @@
-<!-- <!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
-  <title>D3 Tabular Vis</title>
+  <title>Tweesualization</title>
   <script src="https://d3js.org/d3.v5.min.js"></script>
+  <script src="lib/d3.layout.cloud.js"></script>
 </head>
 <body>
-<h1>Table Vis Test</h1>
+<h1>Word Cloud</h1>
   <script type="text/javascript">
-    var w = 12000;
-    var h = 1000;
-    var cellpadding = 2;
+      d3.wordcloud()
+        .size([800, 400])
+        .selector('#wordcloud')
+        .words([{text: 'word', size: 5}, {text: 'cloud', size: 15}])
+        .start();
 
-    var svg = d3.select("body").append("svg")
-      .attr("width", w)
-      .attr("height", h);
+//     function wordCloud(selector) {
 
-    d3.csv('pollution.csv')
-      .then(function(data){
-        console.log(data);
+//       // create word cloud's SVG element
+//       var svg = d3.select(selector).append("svg")
+//                   .attr("width", 500)
+//                   .attr("height", 500)
+//                   .append("g")
+//                   .attr("transform", "translate(250, 250)");
 
-        var yScale = d3.scaleLinear()
-          .domain([0, d3.max(data, function(d){
-            return +d['Both sexes'];
-          })])
-          .range([0, h/4]);
-        var colorScale = d3.scaleLinear()
-          .domain([0, d3.max(data, function(d){
-            return +d['Both sexes'];
-          })])
-          .range([0, 255])
-        svg.selectAll("rect")
-          .data(data)
-          .enter()
-          .append("rect")
-          .attr("width", w / data.length - cellpadding)
-          .attr("height", h)
-          .attr("x", function(d, i){
-            return w / data.length * i;
-          })
-          .attr("height", function(d){
-            return yScale(d['Both sexes']);
-          })
-          .attr("y", function(d){
-            return h/4 - yScale(d['Both sexes']);
-          })
-          .attr("fill", function(d){
-            var f = colorScale(d["Both sexes"]);
-            if(f >= 204.0)
-              return "rgb(" + 255 + ",0,0)";
-            return "rgb(0,0," + f + ")";
-          });
+//       function draw(clouds) {
+//         var cloud = svg.selectAll("g text")
+//                        .data(words, function(d) {return d.text; })
 
-        svg.selectAll("text")
-            .data(data)
-            .enter()
-            .append("text")
-            .text(function(d){
-              return d.Country + ", " + d.Cause;
-            })
-          .attr("transform", function(d, i){
-            return "translate(" + w / data.length * i + "," + h/4 + ")" + "rotate(90)"
-          })
-      })
-    // generate new svg for nested data
-    var w2 = 3000;
-    var h2 = 1000;
-    var cellpadding2 = 2;
+//         cloud.enter()
+//              .append("text")
+//              .style("font-family", "Impact")
+//              .attr("text-anchor", "middle")
+//              .attr("font-size", 1)
+//              .text(function(d) {return d.text; });
 
-    var svg2 = d3.select("body").append("svg")
-      .attr("width", w2)
-      .attr("height", h2);
+//         cloud.transition()
+//              .duration(600)
+//              .style("font-size", function(d) { return d.size + "px"; })
+//              .attr("transform", function(d) {
+//                     return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")"; })
+//                 .style("fill-opacity", 1);
 
-    d3.csv('pollution.csv')
-      .then(function(data){
-        // console.log(data);
-        var nested_data = d3.nest()
-          .key(function(d){
-            return d.Country;
-          })
-          .rollup(function(values){
-            return d3.sum(values, function(d){ return d["Both sexes"];})
-          })
-          .entries(data);
+//         //Exiting words
+//         cloud.exit()
+//              .transition()
+//              .duration(200)
+//              .style('fill-opacity', 1e-6)
+//              .attr('font-size', 1)
+//              .remove();
+//       }
 
-        var yScale = d3.scaleLinear()
-          .domain([0, d3.max(nested_data, function(d){
-            return +d.value;
-          })])
-          .range([0, h2/2]);
-        var colorScale = d3.scaleLinear()
-          .domain([0, d3.max(nested_data, function(d){
-            return +d.value;
-          })])
-          .range([0, 255])
+//       //Use the module pattern to encapsulate the visualisation code. We'll
+//     // expose only the parts that need to be public.
+//     return {
 
-        svg2.selectAll("rect")
-          .data(nested_data)
-          .enter()
-          .append("rect")
-          .attr("width", w2 / nested_data.length - cellpadding)
-          .attr("height", h2)
-          .attr("x", function(d, i){
-            return w2 / nested_data.length * i;
-          })
-          .attr("height", function(d){
-            return yScale(d.value);
-          })
-          .attr("y", function(d){
-            return h2/2 - yScale(d.value);
-          })
-          .attr("fill", function(d){
-            var f = colorScale(d.value);
-            if(f >= 204.0)
-              return "rgb(" + 255 + ",0,0)";
-            return "rgb(0,0," + f + ")";
-          });
+//         //Recompute the word cloud for a new set of words. This method will
+//         // asycnhronously call draw when the layout has been computed.
+//         //The outside world will need to call this function, so make it part
+//         // of the wordCloud return value.
+//         update: function(words) {
+//             d3.layout.cloud().size([500, 500])
+//                 .words(words)
+//                 .padding(5)
+//                 .rotate(function() { return ~~(Math.random() * 2) * 90; })
+//                 .font("Impact")
+//                 .fontSize(function(d) { return d.size; })
+//                 .on("end", draw)
+//                 .start();
+//         }
+//       }
+//     }
 
-        svg2.selectAll("text")
-            .data(nested_data)
-            .enter()
-            .append("text")
-            .text(function(d){
-              return d.key;
-            })
-          .attr("transform", function(d, i){
-            return "translate(" + w2 / nested_data.length * i + "," + h2/2 + ")" + "rotate(90)"
-          })
+//   function showNewWords(vis, i) {
+//     i = i || 0;
 
-      })
+//     vis.update(getWords(i ++ % words.length))
+//     setTimeout(function() { showNewWords(vis, i + 1)}, 2000)
+// }
+
+
+
+
+
+
+
+//     var w = 12000;
+//     var h = 1000;
+//     var cellpadding = 2;
+
+//     var svg = d3.select("body").append("svg")
+//       .attr("width", w)
+//       .attr("height", h);
+
+//     d3.csv('tweets_21_cleaned.csv')
+//       .then(function(data){
+//         console.log(data);
+
+//         var yScale = d3.scaleLinear()
+//           .domain([0, d3.max(data, function(d){
+//             return +d['Both sexes'];
+//           })])
+//           .range([0, h/4]);
+//         var colorScale = d3.scaleLinear()
+//           .domain([0, d3.max(data, function(d){
+//             return +d['Both sexes'];
+//           })])
+//           .range([0, 255])
+//         svg.selectAll("rect")
+//           .data(data)
+//           .enter()
+//           .append("rect")
+//           .attr("width", w / data.length - cellpadding)
+//           .attr("height", h)
+//           .attr("x", function(d, i){
+//             return w / data.length * i;
+//           })
+//           .attr("height", function(d){
+//             return yScale(d['Both sexes']);
+//           })
+//           .attr("y", function(d){
+//             return h/4 - yScale(d['Both sexes']);
+//           })
+//           .attr("fill", function(d){
+//             var f = colorScale(d["Both sexes"]);
+//             if(f >= 204.0)
+//               return "rgb(" + 255 + ",0,0)";
+//             return "rgb(0,0," + f + ")";
+//           });
+
+//         svg.selectAll("text")
+//             .data(data)
+//             .enter()
+//             .append("text")
+//             .text(function(d){
+//               return d.Country + ", " + d.Cause;
+//             })
+//           .attr("transform", function(d, i){
+//             return "translate(" + w / data.length * i + "," + h/4 + ")" + "rotate(90)"
+//           })
+//       })
+//     // generate new svg for nested data
+//     var w2 = 3000;
+//     var h2 = 1000;
+//     var cellpadding2 = 2;
+
+//     var svg2 = d3.select("body").append("svg")
+//       .attr("width", w2)
+//       .attr("height", h2);
+
+//     d3.csv('pollution.csv')
+//       .then(function(data){
+//         // console.log(data);
+//         var nested_data = d3.nest()
+//           .key(function(d){
+//             return d.Country;
+//           })
+//           .rollup(function(values){
+//             return d3.sum(values, function(d){ return d["Both sexes"];})
+//           })
+//           .entries(data);
+
+//         var yScale = d3.scaleLinear()
+//           .domain([0, d3.max(nested_data, function(d){
+//             return +d.value;
+//           })])
+//           .range([0, h2/2]);
+//         var colorScale = d3.scaleLinear()
+//           .domain([0, d3.max(nested_data, function(d){
+//             return +d.value;
+//           })])
+//           .range([0, 255])
+
+//         svg2.selectAll("rect")
+//           .data(nested_data)
+//           .enter()
+//           .append("rect")
+//           .attr("width", w2 / nested_data.length - cellpadding)
+//           .attr("height", h2)
+//           .attr("x", function(d, i){
+//             return w2 / nested_data.length * i;
+//           })
+//           .attr("height", function(d){
+//             return yScale(d.value);
+//           })
+//           .attr("y", function(d){
+//             return h2/2 - yScale(d.value);
+//           })
+//           .attr("fill", function(d){
+//             var f = colorScale(d.value);
+//             if(f >= 204.0)
+//               return "rgb(" + 255 + ",0,0)";
+//             return "rgb(0,0," + f + ")";
+//           });
+
+//         svg2.selectAll("text")
+//             .data(nested_data)
+//             .enter()
+//             .append("text")
+//             .text(function(d){
+//               return d.key;
+//             })
+//           .attr("transform", function(d, i){
+//             return "translate(" + w2 / nested_data.length * i + "," + h2/2 + ")" + "rotate(90)"
+//           })
+
+//       })
   </script>
 </body>
-</html> -->
+</html>
 
 
 
@@ -242,7 +319,7 @@
 </body>
 
 </html> -->
-
+<!-- 
 <!DOCTYPE html>
 <html>
 <head>
@@ -369,4 +446,4 @@ svg.append("text")
 
 </body>
 </html>
-
+ -->
