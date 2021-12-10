@@ -58,15 +58,6 @@
 
         d3.csv('data/topics.csv', function(data) {
 
-                // console.log(data);
-                // let w = 1000;
-                // let h = 500;
-
-                // let svg3 = d3.select('body')
-                //     .append('svg')
-                //     .attr('width', w)
-                //     .attr('height', h);
-
                 var myColor = d3.scaleLinear().domain([1,50])
                     .range(["blue", "white"])
 
@@ -119,11 +110,7 @@
                     .enter()
                     .append('circle')
                     .attr('r', d => rScale(Math.log2(parseInt(d.Count))))
-                    // .attr('fill', 'steelblue')
-                    .attr('fill', function(d){
-                        var f = colorScale(d.Count);
-                        return "rgb(" + 0 + "," + 0 + "," + f + ")";
-                    })
+                    .attr('fill', 'steelblue')
                     .attr('cx', (d, i) => xScale(parseInt(d.Topic)))
                     .attr('cy', (d, i) => yScale(Math.log2(parseInt(d.Count))))
                     .on("mouseover", function(event, d){
@@ -134,22 +121,8 @@
                     })
                     .on("mouseout", function(event, d){
                         d3.select(this)
-                            .style("fill", function(d,i){
-                        return myColor(i)
+                            .style("fill", 'steelblue')
                     })
-                    })
-
-                    // svg3.selectAll('text')
-                    //     .data(data)
-                    //     .enter()
-                    //     .append('text')
-                    //     .text(function(d){
-                    //         return d.Name;
-                    //     })
-                        // .attr('transform', function(d,i){
-                        //     return "translate(" + xScale(parseInt(d.Topic) +
-                        //     ","+yScale(Math.log2(parseInt(d.Count)))+")";
-                        // })
 
                 circles.append('title')
                     .text(d => d.Name+' show  '+d.Count + ' times ')
